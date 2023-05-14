@@ -21,9 +21,9 @@
 #define MUX2_S1 6
 #define MUX2_S2 5
 
-int8_t cmd1 = 1; // (TEMP) Example of first channel selected within rPi for MUX1 (0b00000001)
-int8_t cmd2 = 5; // (TEMP) Example of fourth channel selected within rPi for MUX2 (0b00000101)
-int8_t cmd3 = (cmd2 << 3) | cmd1; // (TEMP) Example of logic to be used within rPi to stitch command message together, will need to convert to char datatype before transmitting (0b00101001 -> ')')
+String cmd_str = "";
+
+int8_t cmd_1, cmd_2, cmd;
 
 void assignCommand(int8_t cmd){
   digitalWrite(MUX1_S0, cmd & 1); // read bit 1 (LSB)
@@ -47,8 +47,11 @@ void setup() {
 
 void loop() {
   if(Serial.available()){
-    cmd3 = Serial.read();
+    cmd_str = Serial.readString();
+    cmd_1 = cmd_str.substring(0,1).toInt();
+    cmd_2 = cmd_str.substring(1,2).toInt();
+    cmd = (cmd_2 << 3) | cmd_1;
+    assignCommand(cmd);
+    Serial.println("Command Received!");
   }
-  assignCommand(cmd3);
-  delay(250);
 }
